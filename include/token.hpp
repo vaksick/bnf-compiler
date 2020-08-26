@@ -39,7 +39,7 @@ namespace common {
 
 #endif
 
-    ENUM_DECLARE(tag, 17,
+    ENUM_DECLARE(tag, 18,
                  NONE,          // null
                  ID,            //
                  VALUE,         //
@@ -52,6 +52,7 @@ namespace common {
                  ANGLE_RIGHT,   // >
                  RANGE,         // ..
                  SEMICOLON,     // ;
+                 COMMA,         // ,
                  IF,            // ?
                  INDIRECTION,   // *
                  PLUS,          // +

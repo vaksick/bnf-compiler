@@ -1,6 +1,6 @@
-/// Copyright (c) 2020 Viktor Lazarev 
+/// Copyright (c) 2020 Viktor Lazarev
 //! @version 0.1
-//! @author vaksick@gmail.com 
+//! @author vaksick@gmail.com
 
 #include "bnf-scanner.hpp"
 
@@ -17,6 +17,13 @@ namespace bnf {
             return name;
         }
 
+        char scan_char(parser &ctx) {
+            auto str = ctx.str_consume();
+            if (str.size() != 1)
+                ctx.raise("array element must be one character");
+            return str[0];
+        }
+
         rule_ptr scane_expression(parser &ctx);
         rule_ptr scane_group(parser &ctx) {
             rules list;
@@ -26,6 +33,17 @@ namespace bnf {
                     auto is_join = ctx.try_to_consume(tag::PREFIX_JOIN);
                     auto name = scan_tag_and_consume_angle(ctx);
                     rule = rule::create_rule(name, is_join);
+                } else if (ctx.try_to_consume(tag::BRACKET_LEFT)) {
+                    rules range;
+                    do {
+                        auto first = scan_char(ctx);
+                        ctx.consume(tag::RANGE);
+                        auto last = scan_char(ctx);
+                        for (auto cur = std::min(first, last); cur <= std::max(first, last); cur++)
+                            range.push_back(rule::create_str(std::string(1, cur)));
+                    } while (ctx.try_to_consume(tag::COMMA));
+                    ctx.consume(tag::BRACKET_RIGHT);
+                    rule = rule::create_choice(range);
                 } else if (ctx.try_to_consume(tag::PARENT_LEFT)) {
                     rule = scane_expression(ctx);
                     ctx.consume(tag::PARENT_RIGHT);

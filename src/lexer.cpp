@@ -164,6 +164,10 @@ namespace scanner {
             case '|':
                 input->shift();
                 return std::make_tuple(tag::CHOICE, "", pos);
+                // ,
+            case ',':
+                input->shift();
+                return std::make_tuple(tag::COMMA, "", pos);
                 // . ..
             case '.':
                 if (input->getNextChar() == '.') {
