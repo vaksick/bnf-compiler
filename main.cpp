@@ -11,10 +11,12 @@
 enum format_t : int { XML, JSON };
 
 format_t format = format_t::XML;
+int pretty_out = false;
 
 static struct option long_options[] = { //
     {"format-out-xml", no_argument, (int *)&format, format_t::XML},
     {"format-out-json", no_argument, (int *)&format, format_t::JSON},
+    {"pretty", no_argument, &pretty_out, true},
     {"bnf", required_argument, nullptr, 'b'},
     {"output", required_argument, nullptr, 'o'},
     {"help", required_argument, nullptr, 'h'},
@@ -72,8 +74,8 @@ std::ostream &operator<<(std::ostream &os, bnf::rule_ptr rule) {
 }
 
 int main(int argc, char **argv) {
-    std::string bnfFileName;// = "simple/debug.bnf";
-    std::string input;// = "debug.txt";
+    std::string bnfFileName; // = "simple/debug.bnf";
+    std::string input;       // = "debug.txt";
     std::string outFileName;
     int opt, option_index;
     while ((opt = getopt_long(argc, argv, "b:i:", long_options, &option_index)) != -1) {
@@ -105,24 +107,26 @@ int main(int argc, char **argv) {
         scanner::parser parser(utils::open(bnfFileName));
         auto bnf = bnf::scan_bnf(parser);
         bnf::check_bnf(bnf);
-        //  for (auto item : bnf) {
-        //     fmt::print("{} ::= ", item.first);
-        //     std::cout << item.second << ";" << std::endl;
-        // }
+#ifdef PRINT_BNF
+        for (auto item : bnf) {
+            fmt::print("{} ::= ", item.first);
+            std::cout << item.second << ";" << std::endl;
+        }
+#endif
         auto tree = bnf::scan_by_bnf(utils::open(input), bnf);
 
+        std::stringstream ss;
         switch (format) {
         case format_t::XML:
-            bnf::xml::print(std::cout, tree);
-            std::cout << std::endl;
+            bnf::xml::print(ss, tree);
             break;
         case format_t::JSON:
-            bnf::json::print(std::cout, tree);
-            std::cout << std::endl;
+            bnf::json::print(ss, tree);
             break;
         default:
             break;
         }
+        std::cout << ss.str() << std::endl;
     } catch (const std::exception &e) {
         fprintf(stderr, "%s\n", e.what());
         return 1;

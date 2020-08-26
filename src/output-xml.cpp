@@ -2,9 +2,11 @@
 #include "rapidxml.hpp"
 #include "rapidxml_print.hpp"
 
+extern int pretty_out;
+
 namespace bnf::xml {
     using namespace rapidxml;
-    
+
     namespace {
         using document = xml_document<>;
 
@@ -61,7 +63,11 @@ namespace bnf::xml {
         if (tree && !tree->is_null()) {
             add_child(doc, doc, tree);
         }
-        rapidxml::print(os, doc, rapidxml::print_no_indenting);
+        int flags = rapidxml::print_no_indenting;
+        if (pretty_out)
+            flags = 0;
+        rapidxml::print(os, doc, flags);
+
         doc.clear();
     }
 } // namespace bnf::xml
