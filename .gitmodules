@@ -1,0 +1,9 @@
+[submodule "rapidxml"]
+	path = rapidxml
+	url = https://github.com/timniederhausen/rapidxml.git
+[submodule "json"]
+	path = json
+	url = https://github.com/nlohmann/json.git
+[submodule "rapidjson"]
+	path = rapidjson
+	url = https://github.com/Tencent/rapidjson.git

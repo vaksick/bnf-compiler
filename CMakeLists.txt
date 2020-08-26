@@ -10,6 +10,8 @@ find_package(fmt REQUIRED)
 
 include_directories(
     include
+    rapidxml
+    rapidjson/include
 )
 
 file(GLOB sources src/*.cpp)

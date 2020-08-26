@@ -1,59 +1,67 @@
 #include "output-xml.hpp"
-#include <iostream>
-#include <sstream>
-
-const std::string space_tab(2, ' ');
+#include "rapidxml.hpp"
+#include "rapidxml_print.hpp"
 
 namespace bnf::xml {
-    void print(std::ostream &os, tree_ptr tree);
-    std::ostream &operator<<(std::ostream &os, std::stringstream &ss) {
-        std::string line;
-        while (std::getline(ss, line))
-            os << space_tab << line << std::endl;
-        return os;
-    }
+    using namespace rapidxml;
+    
+    namespace {
+        using document = xml_document<>;
 
-    void print(std::ostream &os, const data_t &value) {
-        if (is_null(value)) {
-            os << "<tag:null />" << std::endl;
-        } else if (is_string(value)) {
-            os << "<tag:string>";
-            os << get_string(value);
-            os << "</tag:string>" << std::endl;
-        } else {
-            print(os, get_tree(value));
+        xml_node<> *allocate(document &doc, const std::string &name) {
+            auto key = doc.allocate_string(name.c_str());
+            return doc.allocate_node(node_element, key);
         }
-    }
 
-    void print(std::ostream &os, const std::string &name, const data_t &value) {
-        if (is_string(value)) {
-            os << "<" << name << ">";
-            os << get_string(value);
-            os << "</" << name << ">" << std::endl;
-        } else {
-            os << "<" << name << ">" << std::endl;
-            std::stringstream fake_io(std::ios_base::out | std::ios_base::in);
-            print(fake_io, get_tree(value));
-            os << fake_io;
-            os << "</" << name << ">" << std::endl;
+        xml_node<> *allocate(document &doc, const std::string &name, const std::string &value) {
+            auto string = doc.allocate_string(value.c_str());
+            auto key = doc.allocate_string(name.c_str());
+            return doc.allocate_node(node_element, key, string);
         }
-    }
 
-    void print(std::ostream &os, tree_ptr tree) {
-        if (tree) {
-            if (tree->is_null()) {
-                os << "<tag:null />";
-            } else if (tree->is_data()) {
-                print(os, tree->name, tree->data());
+        void add_child(document &doc, xml_node<> &root, const tree_ptr &tree);
+
+        void set_value(document &doc, xml_node<> &root, const data_t &value) {
+            if (is_null(value)) {
+                root.append_node(allocate(doc, "tag:null"));
+            } else if (is_string(value)) {
+                root.append_node(allocate(doc, "tag:string", get_string(value)));
             } else {
-                os << "<" << tree->name << ">" << std::endl;
-                std::stringstream fake_io(std::ios_base::out | std::ios_base::in);
-                for (auto item : tree->list()) {
-                    print(fake_io, item);
-                }
-                os << fake_io;
-                os << "</" << tree->name << ">" << std::endl;
+                add_child(doc, root, get_tree(value));
             }
         }
+
+        void add_child(document &doc, xml_node<> &root, const tree_ptr &tree) {
+            if (tree->is_data()) {
+                auto value = tree->data();
+                if (is_string(value)) {
+                    auto child = allocate(doc, tree->name, get_string(value));
+                    root.append_node(child);
+                } else {
+                    set_value(doc, root, value);
+                }
+            } else if (tree->is_list()) {
+                auto child = allocate(doc, tree->name);
+                for (auto value : tree->list()) {
+                    set_value(doc, *child, value);
+                }
+                root.append_node(child);
+            }
+        }
+
+    } // namespace
+
+    void print(std::ostream &os, tree_ptr tree) {
+        document doc;
+        if (auto decl = doc.allocate_node(node_declaration)) {
+            decl->append_attribute(doc.allocate_attribute("version", "1.0"));
+            decl->append_attribute(doc.allocate_attribute("encoding", "utf-8"));
+            doc.append_node(decl);
+        }
+        if (tree && !tree->is_null()) {
+            add_child(doc, doc, tree);
+        }
+        rapidxml::print(os, doc, rapidxml::print_no_indenting);
+        doc.clear();
     }
 } // namespace bnf::xml

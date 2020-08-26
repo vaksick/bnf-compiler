@@ -1,5 +1,6 @@
 #include "bnf-scanner.hpp"
 #include "input-file.hpp"
+#include "output-json.hpp"
 #include "parser-by-bnf.hpp"
 #include "parser.hpp"
 #include <getopt.h>
@@ -71,10 +72,9 @@ std::ostream &operator<<(std::ostream &os, bnf::rule_ptr rule) {
 }
 
 int main(int argc, char **argv) {
-    std::string bnfFileName = "simple/debug.bnf";
-    std::string input = "debug.txt";
+    std::string bnfFileName;// = "simple/debug.bnf";
+    std::string input;// = "debug.txt";
     std::string outFileName;
-    //std::vector<std::string> inputs{"text.txt"};
     int opt, option_index;
     while ((opt = getopt_long(argc, argv, "b:i:", long_options, &option_index)) != -1) {
         switch (opt) {
@@ -109,12 +109,20 @@ int main(int argc, char **argv) {
         //     fmt::print("{} ::= ", item.first);
         //     std::cout << item.second << ";" << std::endl;
         // }
-        // return 0;
-        //for (auto filename : inputs) {
-            auto tree = bnf::scan_by_bnf(utils::open(input), bnf);
+        auto tree = bnf::scan_by_bnf(utils::open(input), bnf);
+
+        switch (format) {
+        case format_t::XML:
             bnf::xml::print(std::cout, tree);
             std::cout << std::endl;
-        //}
+            break;
+        case format_t::JSON:
+            bnf::json::print(std::cout, tree);
+            std::cout << std::endl;
+            break;
+        default:
+            break;
+        }
     } catch (const std::exception &e) {
         fprintf(stderr, "%s\n", e.what());
         return 1;
