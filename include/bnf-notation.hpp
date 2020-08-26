@@ -3,8 +3,9 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <map>
 
-#define ENTRY_NAME "ENTRY"
+#define ENTRY_NAME "entry"
 
 namespace bnf {
     enum rule_type { STR, RULE, GROUP, CHOICE };
@@ -20,7 +21,7 @@ namespace bnf {
         rule_type type;
         variable_t variable;
         value_t value;
-        mutable uint64_t index;// internal use;
+        mutable uint64_t index; // internal use;
         rule(rule_type, variable_t, const value_t &);
 
         const std::string &str() const;
@@ -36,5 +37,11 @@ namespace bnf {
 
         void set_index(uint64_t index);
     };
+
+    using rule_map = std::map<std::string, rule_ptr>;
+
+    std::string to_upper(std::string value);
+    bool is_exists(const rule_map &map, const std::string &name);
+    const rule_ptr &get_rule(const rule_map &map, const std::string &name);
 
 } // namespace bnf

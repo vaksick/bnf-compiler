@@ -121,7 +121,7 @@ namespace bnf {
                     return rule->str();
                 case RULE: {
                     scan::object child(stream, map, rule /*root*/, rule->str());
-                    auto value = child.expression(map.at(rule->str()), depth);
+                    auto value = child.expression(get_rule(map, rule->str()), depth);
                     if (is_null(value))
                         return nullptr;
                     stream = child.stream;
@@ -191,7 +191,7 @@ namespace bnf {
                     return try_termal(rule, depth);
                 case variable_t::ONE_OR_MORE:
                     append(result, termal(rule, depth));
-                    // brek; //next rule
+                    // break; //next rule
                 case variable_t::LIST:
                     while (!stream.eof()) {
                         auto expt = try_termal(rule, depth);
@@ -224,7 +224,7 @@ namespace bnf {
     } // namespace scan
 
     tree_ptr scan_by_bnf(const input_ptr &file, const rule_map &map) {
-        scan::object object(*file, map, map.at(ENTRY_NAME), ENTRY_NAME);
+        scan::object object(*file, map, get_rule(map, ENTRY_NAME), ENTRY_NAME);
         auto value = object.expression(object.root, 10);
         if (is_null(value))
             throw bnf_error("[rule error] {} is null", ENTRY_NAME);

@@ -3,14 +3,24 @@
 namespace bnf {
     using namespace scanner;
     namespace {
+        std::string scan_tag_and_consume_angle(parser &ctx) {
+            std::string name;
+            do {
+                if (!name.empty())
+                    name.push_back(' ');
+                name = ctx.id_consume();
+            } while (!ctx.try_to_consume(tag::ANGLE_RIGHT));
+            return name;
+        }
+
         rule_ptr scane_expression(parser &ctx);
         rule_ptr scane_group(parser &ctx) {
             rules list;
             do {
                 rule_ptr item;
                 if (ctx.try_to_consume(tag::ANGLE_LEFT)) {
-                    item = rule::create_rule(ctx.id_consume());
-                    ctx.consume(tag::ANGLE_RIGHT);
+                    auto name = scan_tag_and_consume_angle(ctx);
+                    item = rule::create_rule(name);
                 } else if (ctx.try_to_consume(tag::PARENT_LEFT)) {
                     item = scane_expression(ctx);
                     ctx.consume(tag::PARENT_RIGHT);
@@ -46,29 +56,18 @@ namespace bnf {
 
     } // namespace
 
-    bool is_exists(const rule_map &map, const std::string &name) {
-        auto item = map.find(name);
-        return item != map.end();
-    }
-
-    static uint64_t g_index = 1;
-
     rule_map scan_bnf(parser &ctx) {
         rule_map map;
         while (!ctx.compare(none)) {
-            // <symbol>
+            // <rule>
             ctx.consume(tag::ANGLE_LEFT);
-            auto name = ctx.id_consume();
+            auto name = scan_tag_and_consume_angle(ctx);
             if (is_exists(map, name))
                 ctx.raise("dublicate name '{}'", name);
-
-            ctx.consume(tag::ANGLE_RIGHT);
             // ::=
             ctx.consume(tag::ASSIGMENT);
             // expression
-            auto rule = scane_expression(ctx);
-            rule->set_index(++g_index);
-            map[name] = rule;
+            map[to_upper(name)] = scane_expression(ctx);
             ctx.consume(tag::SEMICOLON);
         }
         return map;
@@ -79,7 +78,7 @@ namespace bnf {
         case RULE: {
             if (!is_exists(map, rule->str()))
                 throw std::runtime_error(fmt::format("symbol '{}' not found", rule->str()));
-            rule->set_index(map.at(rule->str())->index);
+            rule->set_index(get_rule(map, rule->str())->index);
             break;
         }
         case GROUP:
@@ -92,29 +91,6 @@ namespace bnf {
         }
     }
 
-    /*void check_bnf_infinite(const std::string &name, const rule_ptr &rule) {
-        switch (rule->type) {
-        case RULE:
-            if (rule->str() == name)
-                throw std::runtime_error(fmt::format("symbol '{}' infinite recursion", name));
-            break;
-        case GROUP:
-            for (auto node : rule->list()) {
-                check_bnf_infinite(name, node);
-                if (node->variable == variable_type::LIST || node->variable == variable_type::ONE_OR_NONE)
-                    continue;
-                break;
-            }
-            break;
-        case CHOICE:
-            for (auto tag : node->list())
-                check_bnf_infinite(name, tag);
-            break;
-        default:
-            break;
-        }
-    }*/
-
     // infinite recursion
 
     void check_bnf(const rule_map &map) {
@@ -122,7 +98,7 @@ namespace bnf {
             throw std::runtime_error(fmt::format("rule '{}' not found ", ENTRY_NAME));
         for (auto pair : map)
             check_bnf(map, pair.second);
-        //for (auto pair : map)
-         //   check_bnf_infinite(pair.first, pair.second);
+        // for (auto pair : map)
+        //   check_bnf_infinite(pair.first, pair.second);
     }
 } // namespace bnf

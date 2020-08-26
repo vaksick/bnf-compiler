@@ -97,9 +97,7 @@ namespace scanner {
         location pos(input->getLocation());
         // this is ID if first symbol alpha or _
         if (isalpha(input->getChar()) || (input->getChar() == '_')) {
-            auto str = read_pattern();
-            std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-            return std::make_tuple(tag::ID, str, pos);
+            return std::make_tuple(tag::ID, read_pattern(), pos);
         } else {
             switch (input->getChar()) {
                 // >
