@@ -46,13 +46,13 @@ namespace common {
                  PARENT_RIGHT,  // )
                  ANGLE_LEFT,    // <
                  ANGLE_RIGHT,   // >
-                 DOT,           // .
                  RANGE,         // ..
                  SEMICOLON,     // ;
                  IF,            // ?
                  INDIRECTION,   // *
                  PLUS,          // +
-                 CHOICE         // |
+                 CHOICE,        // |
+                 PREFIX_JOIN    // s:
     );                          // namespace common
 
     inline const char *to_string(tag v) {

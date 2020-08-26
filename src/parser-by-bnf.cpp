@@ -97,6 +97,29 @@ namespace bnf {
             return false;
         }
 
+        std::string join(const variant_t &value);
+        std::string join(const std::vector<data_t> &list) {
+            std::string result;
+            for (auto item : list) {
+                if (is_string(item)) {
+                    result += get_string(item);
+                } else if (is_tree(item)) {
+                    result += join(get_tree(item));
+                }
+            }
+            return result;
+        }
+        std::string join(const variant_t &value) {
+            if (is_null(value))
+                return std::string();
+            if (is_string(value))
+                return get_string(value);
+            if (is_list(value))
+                return join(get_list(value));
+            if (is_tree(value))
+                return join(get_tree(value)->value);
+            return "- undefine - ";
+        }
         class object {
         public:
             mutable input stream;
@@ -125,6 +148,9 @@ namespace bnf {
                     if (is_null(value))
                         return nullptr;
                     stream = child.stream;
+                    if (rule->is_join)
+                        return std::make_shared<tree>(rule->str(), join(value));
+
                     return std::make_shared<tree>(rule->str(), value);
                 }
                 case GROUP: {
@@ -161,8 +187,8 @@ namespace bnf {
                     if (is_null(value)) // if null to return
                         return nullptr;
                     try {
-                        scan::object child(stream, map, root, name);//save position;
-                        auto value2 = child.range_expression(first, last, depth-1);
+                        scan::object child(stream, map, root, name); // save position;
+                        auto value2 = child.range_expression(first, last, depth - 1);
                         if (is_null(value2)) // if null to return
                             return get_tree(value)->list();
                         stream = child.stream;

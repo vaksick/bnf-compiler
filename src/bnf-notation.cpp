@@ -5,8 +5,8 @@ namespace bnf {
 
     static uint64_t g_index = 1;
 
-    rule::rule(rule_type type, variable_t var, const value_t &value)
-        : type(type), variable(var), value(value), index(++g_index) {
+    rule::rule(rule_type type, const value_t &value, bool is_join)
+        : type(type), variable(variable_t::NONE), value(value), is_join(is_join), index(++g_index) {
     }
 
     const std::string &rule::str() const {
@@ -16,17 +16,17 @@ namespace bnf {
         return std::get<rules>(value);
     }
 
-    rule_ptr rule::create_str(const std::string &value, variable_t var) {
-        return std::make_shared<rule>(STR, var, value);
+    rule_ptr rule::create_str(const std::string &value) {
+        return std::make_shared<rule>(STR, value, false);
     }
-    rule_ptr rule::create_rule(const std::string &value, variable_t var) {
-        return std::make_shared<rule>(RULE, var, value);
+    rule_ptr rule::create_rule(const std::string &value, bool is_join) {
+        return std::make_shared<rule>(RULE, value, is_join);
     }
-    rule_ptr rule::create_choice(const rules &value, variable_t var) {
-        return std::make_shared<rule>(CHOICE, var, value);
+    rule_ptr rule::create_choice(const rules &value) {
+        return std::make_shared<rule>(CHOICE, value, false);
     }
-    rule_ptr rule::create_group(const rules &value, variable_t var) {
-        return std::make_shared<rule>(GROUP, var, value);
+    rule_ptr rule::create_group(const rules &value) {
+        return std::make_shared<rule>(GROUP, value, false);
     }
 
     void rule::set_index(uint64_t value) {

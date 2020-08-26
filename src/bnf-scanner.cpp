@@ -17,24 +17,25 @@ namespace bnf {
         rule_ptr scane_group(parser &ctx) {
             rules list;
             do {
-                rule_ptr item;
+                rule_ptr rule;
                 if (ctx.try_to_consume(tag::ANGLE_LEFT)) {
+                    auto is_join = ctx.try_to_consume(tag::PREFIX_JOIN);
                     auto name = scan_tag_and_consume_angle(ctx);
-                    item = rule::create_rule(name);
+                    rule = rule::create_rule(name, is_join);
                 } else if (ctx.try_to_consume(tag::PARENT_LEFT)) {
-                    item = scane_expression(ctx);
+                    rule = scane_expression(ctx);
                     ctx.consume(tag::PARENT_RIGHT);
                 } else {
-                    item = rule::create_str(ctx.str_consume());
+                    rule = rule::create_str(ctx.str_consume());
                 }
                 if (ctx.try_to_consume(tag::PLUS)) {
-                    item->variable = variable_t::ONE_OR_MORE;
+                    rule->variable = variable_t::ONE_OR_MORE;
                 } else if (ctx.try_to_consume(tag::IF)) {
-                    item->variable = variable_t::OPT;
+                    rule->variable = variable_t::OPT;
                 } else if (ctx.try_to_consume(tag::INDIRECTION)) {
-                    item->variable = variable_t::LIST;
+                    rule->variable = variable_t::LIST;
                 }
-                list.push_back(item);
+                list.push_back(rule);
             } while (!ctx.compare(tag::SEMICOLON, tag::PARENT_RIGHT, tag::CHOICE));
             if (list.size() == 1)
                 return list[0];
@@ -61,13 +62,16 @@ namespace bnf {
         while (!ctx.compare(none)) {
             // <rule>
             ctx.consume(tag::ANGLE_LEFT);
+            auto is_join = ctx.try_to_consume(tag::PREFIX_JOIN);
             auto name = scan_tag_and_consume_angle(ctx);
             if (is_exists(map, name))
                 ctx.raise("dublicate name '{}'", name);
             // ::=
             ctx.consume(tag::ASSIGMENT);
             // expression
-            map[to_upper(name)] = scane_expression(ctx);
+            auto rule = scane_expression(ctx);
+            rule->is_join = is_join;
+            map[to_upper(name)] = rule;
             ctx.consume(tag::SEMICOLON);
         }
         return map;
@@ -78,7 +82,10 @@ namespace bnf {
         case RULE: {
             if (!is_exists(map, rule->str()))
                 throw std::runtime_error(fmt::format("symbol '{}' not found", rule->str()));
-            rule->set_index(get_rule(map, rule->str())->index);
+            auto node = get_rule(map, rule->str());
+            rule->set_index(node->index);
+            if(node->is_join)
+                rule->is_join = true;
             break;
         }
         case GROUP:

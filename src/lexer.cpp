@@ -95,6 +95,16 @@ namespace scanner {
             break;
         }
         location pos(input->getLocation());
+        // prefix ID
+        if (input->getNextChar() == ':') {
+            switch (input->getChar()) {
+            case 's':
+            case 'S':
+                input->shift(2);
+                return std::make_tuple(tag::PREFIX_JOIN, "", pos);
+            }
+        }
+
         // this is ID if first symbol alpha or _
         if (isalpha(input->getChar()) || (input->getChar() == '_')) {
             return std::make_tuple(tag::ID, read_pattern(), pos);
@@ -124,12 +134,13 @@ namespace scanner {
             case ')':
                 input->shift();
                 return std::make_tuple(tag::PARENT_RIGHT, "", pos);
-                // ::=
+                // : ::=
             case ':':
                 if (input->getNextChar() == ':' && input->getNext2Char() == '=') {
                     input->shift(3);
                     return std::make_tuple(tag::ASSIGMENT, "", pos);
                 }
+                break;
                 // ;
             case ';':
                 input->shift();
@@ -151,14 +162,11 @@ namespace scanner {
                 return std::make_tuple(tag::CHOICE, "", pos);
                 // . ..
             case '.':
-                switch (input->getNextChar()) {
-                case '.':
+                if (input->getNextChar() == '.') {
                     input->shift(2);
                     return std::make_tuple(tag::RANGE, "", pos);
-                default:
-                    input->shift();
-                    return std::make_tuple(tag::DOT, "", pos);
                 }
+                break;
             case '"':
             case '\'':
                 return std::make_tuple(tag::VALUE, read_quated_string(), pos);

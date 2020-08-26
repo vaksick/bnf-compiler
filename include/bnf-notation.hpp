@@ -1,9 +1,9 @@
 #pragma once
+#include <map>
 #include <memory>
 #include <string>
 #include <variant>
 #include <vector>
-#include <map>
 
 #define ENTRY_NAME "entry"
 
@@ -21,15 +21,16 @@ namespace bnf {
         rule_type type;
         variable_t variable;
         value_t value;
+        bool is_join;
         mutable uint64_t index; // internal use;
-        rule(rule_type, variable_t, const value_t &);
+        rule(rule_type, const value_t &, bool is_join);
 
         const std::string &str() const;
         const rules &list() const;
-        static rule_ptr create_str(const std::string &, variable_t = variable_t::NONE);
-        static rule_ptr create_rule(const std::string &, variable_t = variable_t::NONE);
-        static rule_ptr create_choice(const rules &, variable_t = variable_t::NONE);
-        static rule_ptr create_group(const rules &, variable_t = variable_t::NONE);
+        static rule_ptr create_str(const std::string &);
+        static rule_ptr create_rule(const std::string &, bool is_join);
+        static rule_ptr create_choice(const rules &);
+        static rule_ptr create_group(const rules &);
 
         bool allowed_empty() const {
             return variable == variable_t::LIST || variable == variable_t::OPT;
