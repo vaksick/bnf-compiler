@@ -1,3 +1,7 @@
+/// Copyright (c) 2020 Viktor Lazarev 
+//! @version 0.1
+//! @author vaksick@gmail.com 
+
 #include "bnf-scanner.hpp"
 
 namespace bnf {
@@ -84,7 +88,7 @@ namespace bnf {
                 throw std::runtime_error(fmt::format("symbol '{}' not found", rule->str()));
             auto node = get_rule(map, rule->str());
             rule->set_index(node->index);
-            if(node->is_join)
+            if (node->is_join)
                 rule->is_join = true;
             break;
         }

@@ -1,3 +1,7 @@
+/// Copyright (c) 2020 Viktor Lazarev
+//! @version 0.1
+//! @author vaksick@gmail.com
+
 #include "input-file.hpp"
 #include <fstream>
 #include <streambuf>

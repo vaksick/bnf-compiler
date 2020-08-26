@@ -1,3 +1,7 @@
+/// Copyright (c) 2020 Viktor Lazarev 
+//! @version 0.1
+//! @author vaksick@gmail.com 
+
 #define TOKEN_CPP
 #undef __TOKEN_HPP__
 
