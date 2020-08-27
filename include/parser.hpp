@@ -38,6 +38,26 @@ namespace scanner {
         void consume(const tag &);
         bool try_to_consume(const tag &);
 
+
+        template <typename T, typename R, int N>
+        bool try_to_array_consume(const T (&tags)[N], const R (&results)[N], R &result) {
+            for (size_t i = 0; i < N; i++) {
+                if (try_to_consume(tags[i])) {
+                    result = results[i];
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        template <typename T, typename R, int N>
+        R array_consume(const T (&tags)[N], const R (&results)[N], const R &def) {
+            R result(def);
+            if(try_to_array_consume(tags, results, result))
+              return result;
+            return def;
+        }
+
         std::string id_consume();
         bool try_to_id_consume(std::string &);
 

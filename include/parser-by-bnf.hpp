@@ -1,6 +1,6 @@
-/// Copyright (c) 2020 Viktor Lazarev 
+/// Copyright (c) 2020 Viktor Lazarev
 //! @version 0.1
-//! @author vaksick@gmail.com 
+//! @author vaksick@gmail.com
 
 #pragma once
 #include "bnf-notation.hpp"
@@ -33,6 +33,7 @@ namespace bnf {
     struct tree {
         std::string name;
         variant_t value;
+        mutable bool hidden;
         bool is_null() const;
         bool is_data() const;
         bool is_list() const;
@@ -40,7 +41,7 @@ namespace bnf {
         const data_t &data() const;
         const std::vector<data_t> &list() const;
         tree(const std::string &name);
-        tree(const std::string &name, const variant_t &value);
+        tree(const std::string &name, const variant_t &value, bool hidden = false);
     };
 
     struct bnf_error : public std::runtime_error {

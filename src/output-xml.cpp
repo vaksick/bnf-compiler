@@ -1,6 +1,6 @@
-/// Copyright (c) 2020 Viktor Lazarev 
+/// Copyright (c) 2020 Viktor Lazarev
 //! @version 0.1
-//! @author vaksick@gmail.com 
+//! @author vaksick@gmail.com
 
 #include "output-xml.hpp"
 #include "rapidxml.hpp"
@@ -38,6 +38,8 @@ namespace bnf::xml {
         }
 
         void add_child(document &doc, xml_node<> &root, const tree_ptr &tree) {
+            if (tree->hidden)
+                return;
             if (tree->is_data()) {
                 auto value = tree->data();
                 if (is_string(value)) {

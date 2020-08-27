@@ -106,6 +106,10 @@ namespace scanner {
             case 'S':
                 input->shift(2);
                 return std::make_tuple(tag::PREFIX_JOIN, "", pos);
+            case 'h':
+            case 'H':
+                input->shift(2);
+                return std::make_tuple(tag::PREFIX_HIDDEN, "", pos);
             }
         }
 

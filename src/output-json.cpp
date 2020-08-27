@@ -33,6 +33,8 @@ namespace bnf::json {
         }
 
         void to_json(json_writer &writer, const tree_ptr &tree) {
+            if (tree->hidden)
+                return;
             if (tree->is_data()) {
                 auto value = tree->data();
                 if (is_string(value)) {

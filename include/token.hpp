@@ -39,7 +39,7 @@ namespace common {
 
 #endif
 
-    ENUM_DECLARE(tag, 19,
+    ENUM_DECLARE(tag, 20,
                  NONE,          // null
                  ID,            //
                  VALUE,         //
@@ -58,7 +58,8 @@ namespace common {
                  PLUS,          // +
                  CHOICE,        // |
                  NOT,           // ^
-                 PREFIX_JOIN    // s:
+                 PREFIX_JOIN,   // s:
+                 PREFIX_HIDDEN  // h:
     );                          // namespace common
 
     inline const char *to_string(tag v) {

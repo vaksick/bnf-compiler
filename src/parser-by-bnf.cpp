@@ -75,9 +75,10 @@ namespace bnf {
     const std::vector<data_t> &tree::list() const {
         return get_list(value);
     }
-    tree::tree(const std::string &name) : name(name), value(nullptr) {
+    tree::tree(const std::string &name) : name(name), value(nullptr), hidden(false) {
     }
-    tree::tree(const std::string &name, const variant_t &value) : name(name), value(value) {
+    tree::tree(const std::string &name, const variant_t &value, bool hidden)
+        : name(name), value(value), hidden(hidden) {
     }
 
     namespace scan {
@@ -152,10 +153,10 @@ namespace bnf {
                     if (is_null(value))
                         return nullptr;
                     stream = child.stream;
-                    if (rule->is_join)
+                    if (rule->is_join())
                         return std::make_shared<tree>(rule->str(), join(value));
 
-                    return std::make_shared<tree>(rule->str(), value);
+                    return std::make_shared<tree>(rule->str(), value, rule->is_hidden());
                 }
                 case GROUP: {
                     scan::object child(stream, map, root /*root*/, name + ".group");

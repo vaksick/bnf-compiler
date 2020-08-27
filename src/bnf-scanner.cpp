@@ -30,9 +30,12 @@ namespace bnf {
             do {
                 rule_ptr rule;
                 if (ctx.try_to_consume(tag::ANGLE_LEFT)) {
-                    auto is_join = ctx.try_to_consume(tag::PREFIX_JOIN);
+                    auto prefix = ctx.array_consume(            //
+                        {tag::PREFIX_JOIN, tag::PREFIX_HIDDEN}, //
+                        {prefix_t::JOIN, prefix_t::HIDDEN},     //
+                        prefix_t::NONE);
                     auto name = scan_tag_and_consume_angle(ctx);
-                    rule = rule::create_rule(name, is_join);
+                    rule = rule::create_rule(name, prefix);
                 } else if (ctx.try_to_consume(tag::BRACKET_LEFT)) {
                     std::string range;
                     bool is_not = ctx.try_to_consume(tag::NOT);
@@ -89,7 +92,10 @@ namespace bnf {
         while (!ctx.compare(none)) {
             // <rule>
             ctx.consume(tag::ANGLE_LEFT);
-            auto is_join = ctx.try_to_consume(tag::PREFIX_JOIN);
+            auto prefix = ctx.array_consume(            //
+                {tag::PREFIX_JOIN, tag::PREFIX_HIDDEN}, //
+                {prefix_t::JOIN, prefix_t::HIDDEN},     //
+                prefix_t::NONE);
             auto name = scan_tag_and_consume_angle(ctx);
             if (is_exists(map, name))
                 ctx.raise("dublicate name '{}'", name);
@@ -97,7 +103,7 @@ namespace bnf {
             ctx.consume(tag::ASSIGMENT);
             // expression
             auto rule = scane_expression(ctx);
-            rule->is_join = is_join;
+            rule->prefix = prefix;
             map[to_upper(name)] = rule;
             ctx.consume(tag::SEMICOLON);
         }
@@ -111,8 +117,8 @@ namespace bnf {
                 throw std::runtime_error(fmt::format("symbol '{}' not found", rule->str()));
             auto node = get_rule(map, rule->str());
             rule->set_index(node->index);
-            if (node->is_join)
-                rule->is_join = true;
+            if (rule->prefix == prefix_t::NONE)
+                rule->prefix = node->prefix;
             break;
         }
         case GROUP:
