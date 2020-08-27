@@ -30,7 +30,14 @@ static struct option long_options[] = { //
     {0, 0, 0, 0}};
 
 void help_print() {
-    fprintf(stderr, "bnfc --bnf/-b file.bnf input [...input]\n");
+    fprintf(stderr, "bnfc --bnf/-b file.bnf [options] input\n");
+    fprintf(stderr, "options\n");
+    fprintf(stderr, "    --output/-o          :Output the results to a file. Default output to tty.\n");
+    fprintf(stderr, "    --print-bnf          :Print parsing bnf to tty.\n");
+    fprintf(stderr, "    --pretty             :Output the result in a pretty format.\n");
+    fprintf(stderr, "    --format-out-xml     :Output the result in a xml format.[default]\n");
+    fprintf(stderr, "    --format-out-json    :Output the result in a json format.\n");
+    exit(0);
 }
 
 std::ostream &operator<<(std::ostream &os, bnf::rule_ptr rule) {
@@ -98,7 +105,7 @@ int main(int argc, char **argv) {
     std::string input;       // = "debug.txt";
     std::string outFileName;
     int opt, option_index;
-    while ((opt = getopt_long(argc, argv, "b:o:", long_options, &option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "b:o:h", long_options, &option_index)) != -1) {
         switch (opt) {
         case 'b':
             bnfFileName = optarg;
@@ -108,7 +115,7 @@ int main(int argc, char **argv) {
             break;
         case 'h':
             help_print();
-            break;
+            return 0;
         default:
             break;
         }

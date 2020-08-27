@@ -12,7 +12,7 @@ namespace bnf {
             do {
                 if (!name.empty())
                     name.push_back(' ');
-                name = ctx.id_consume();
+                name += ctx.id_consume();
             } while (!ctx.try_to_consume(tag::ANGLE_RIGHT));
             return name;
         }
