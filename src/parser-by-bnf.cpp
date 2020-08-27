@@ -227,8 +227,14 @@ namespace bnf {
                 } else {
                     for (; first != last; ++first) {
                         auto value = expression(*first, depth);
-                        if (is_null(value) && !(*first)->allowed_empty())
+                        if (is_null(value)) {
+                            auto rule = *first;
+                            if (rule->allowed_empty())
+                                continue;
+                            if (rule->type == rule_type::RULE && get_rule(map, rule->str())->allowed_empty())
+                                continue;
                             return nullptr;
+                        }
                         append(result, value);
                     };
                 }
