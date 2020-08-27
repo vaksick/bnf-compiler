@@ -1,6 +1,6 @@
-/// Copyright (c) 2020 Viktor Lazarev 
+/// Copyright (c) 2020 Viktor Lazarev
 //! @version 0.1
-//! @author vaksick@gmail.com 
+//! @author vaksick@gmail.com
 
 #include "lexer.hpp"
 
@@ -168,6 +168,10 @@ namespace scanner {
             case ',':
                 input->shift();
                 return std::make_tuple(tag::COMMA, "", pos);
+                // ^
+            case '^':
+                input->shift();
+                return std::make_tuple(tag::NOT, "", pos);
                 // . ..
             case '.':
                 if (input->getNextChar() == '.') {

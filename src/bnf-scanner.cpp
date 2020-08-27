@@ -34,16 +34,21 @@ namespace bnf {
                     auto name = scan_tag_and_consume_angle(ctx);
                     rule = rule::create_rule(name, is_join);
                 } else if (ctx.try_to_consume(tag::BRACKET_LEFT)) {
-                    rules range;
+                    std::string range;
+                    bool is_not = ctx.try_to_consume(tag::NOT);
                     do {
-                        auto first = scan_char(ctx);
-                        ctx.consume(tag::RANGE);
-                        auto last = scan_char(ctx);
-                        for (auto cur = std::min(first, last); cur <= std::max(first, last); cur++)
-                            range.push_back(rule::create_str(std::string(1, cur)));
+                        auto chr = scan_char(ctx);
+                        if (ctx.try_to_consume(tag::RANGE)) {
+                            auto last = scan_char(ctx);
+                            if (chr > last)
+                                std::swap(chr, last);
+                            for (; chr <= last; chr++)
+                                range.push_back(chr);
+                        } else
+                            range.push_back(chr);
                     } while (ctx.try_to_consume(tag::COMMA));
                     ctx.consume(tag::BRACKET_RIGHT);
-                    rule = rule::create_choice(range);
+                    rule = is_not ? rule::create_xor_array(range) : rule::create_array(range);
                 } else if (ctx.try_to_consume(tag::PARENT_LEFT)) {
                     rule = scane_expression(ctx);
                     ctx.consume(tag::PARENT_RIGHT);

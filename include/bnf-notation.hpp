@@ -12,7 +12,7 @@
 #define ENTRY_NAME "entry"
 
 namespace bnf {
-    enum rule_type { STR, RULE, GROUP, CHOICE };
+    enum rule_type { STR, RULE, GROUP, CHOICE, ARRAY, XOR_ARRAY };
     enum class variable_t { NONE, LIST, OPT, ONE_OR_MORE };
 
     struct rule;
@@ -34,6 +34,8 @@ namespace bnf {
         static rule_ptr create_str(const std::string &);
         static rule_ptr create_rule(const std::string &, bool is_join);
         static rule_ptr create_choice(const rules &);
+        static rule_ptr create_array(const std::string &);
+        static rule_ptr create_xor_array(const std::string &);
         static rule_ptr create_group(const rules &);
 
         bool allowed_empty() const {

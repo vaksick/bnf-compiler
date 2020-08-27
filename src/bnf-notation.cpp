@@ -1,6 +1,6 @@
-/// Copyright (c) 2020 Viktor Lazarev 
+/// Copyright (c) 2020 Viktor Lazarev
 //! @version 0.1
-//! @author vaksick@gmail.com 
+//! @author vaksick@gmail.com
 
 #include "bnf-notation.hpp"
 #include <algorithm>
@@ -28,6 +28,12 @@ namespace bnf {
     }
     rule_ptr rule::create_choice(const rules &value) {
         return std::make_shared<rule>(CHOICE, value, false);
+    }
+    rule_ptr rule::create_array(const std::string &value) {
+        return std::make_shared<rule>(ARRAY, value, false);
+    }
+    rule_ptr rule::create_xor_array(const std::string &value) {
+        return std::make_shared<rule>(XOR_ARRAY, value, false);
     }
     rule_ptr rule::create_group(const rules &value) {
         return std::make_shared<rule>(GROUP, value, false);

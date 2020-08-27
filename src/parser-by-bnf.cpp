@@ -176,6 +176,28 @@ namespace bnf {
                     }
                     throw bnf_error("[rule error] {}: failed to make a choice in tag:'{}'", pos, name);
                 }
+                case ARRAY: {
+                    // only char
+                    auto value = stream.getChar();
+                    for (auto chr : rule->str()) {
+                        if (chr == value) {
+                            stream.shift();
+                            return std::string(1, value);
+                        }
+                    }
+                    return nullptr;
+                }
+                case XOR_ARRAY: {
+                    // only char
+                    auto value = stream.getChar();
+                    for (auto chr : rule->str()) {
+                        if (chr == value)
+                            return nullptr;
+                    }
+                    stream.shift();
+                    return std::string(1, value);
+                }
+
                 default:
                     throw bnf_error("[rule error] unknown rule type");
                 }
