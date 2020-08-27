@@ -1,6 +1,6 @@
-/// Copyright (c) 2020 Viktor Lazarev 
+/// Copyright (c) 2020 Viktor Lazarev
 //! @version 0.1
-//! @author vaksick@gmail.com 
+//! @author vaksick@gmail.com
 
 #include "parser-by-bnf.hpp"
 #include <sstream>
@@ -166,8 +166,8 @@ namespace bnf {
                     return value;
                 }
                 case CHOICE: {
-                    scan::object child(stream, map, root /*root*/, name + ".choice");
                     for (auto node : rule->list()) {
+                        scan::object child(stream, map, root /*root*/, name + ".choice");
                         auto value = child.try_expression(node, depth);
                         if (!is_null(value)) {
                             stream = child.stream;
