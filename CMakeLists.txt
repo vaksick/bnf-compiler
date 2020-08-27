@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(bnf-compiller)
+project(bnfc)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,5 +15,5 @@ include_directories(
 )
 
 file(GLOB sources src/*.cpp)
-add_executable(bnf-compiller ${sources} main.cpp)
-target_link_libraries(bnf-compiller fmt)
+add_executable(bnfc ${sources} main.cpp)
+target_link_libraries(bnfc fmt)

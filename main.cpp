@@ -1,6 +1,6 @@
-/// Copyright (c) 2020 Viktor Lazarev 
+/// Copyright (c) 2020 Viktor Lazarev
 //! @version 0.1
-//! @author vaksick@gmail.com 
+//! @author vaksick@gmail.com
 
 #include "bnf-scanner.hpp"
 #include "input-file.hpp"
@@ -11,23 +11,26 @@
 #include <iostream>
 #include <output-xml.hpp>
 #include <sstream>
+#include <fstream>
 
 enum format_t : int { XML, JSON };
 
 format_t format = format_t::XML;
 int pretty_out = false;
+int print_bnf = false;
 
 static struct option long_options[] = { //
     {"format-out-xml", no_argument, (int *)&format, format_t::XML},
     {"format-out-json", no_argument, (int *)&format, format_t::JSON},
     {"pretty", no_argument, &pretty_out, true},
+    {"print-bnf", no_argument, &print_bnf, true},
     {"bnf", required_argument, nullptr, 'b'},
     {"output", required_argument, nullptr, 'o'},
     {"help", required_argument, nullptr, 'h'},
     {0, 0, 0, 0}};
 
 void help_print() {
-    fprintf(stderr, "bnf-compiller --bnf/-b file.bnf input [...input]\n");
+    fprintf(stderr, "bnfc --bnf/-b file.bnf input [...input]\n");
 }
 
 std::ostream &operator<<(std::ostream &os, bnf::rule_ptr rule) {
@@ -77,12 +80,25 @@ std::ostream &operator<<(std::ostream &os, bnf::rule_ptr rule) {
     return os;
 }
 
+void print(std::ostream &os, bnf::tree_ptr tree) {
+    switch (format) {
+    case format_t::XML:
+        bnf::xml::print(os, tree);
+        break;
+    case format_t::JSON:
+        bnf::json::print(os, tree);
+        break;
+    default:
+        break;
+    }
+}
+
 int main(int argc, char **argv) {
     std::string bnfFileName; // = "simple/debug.bnf";
     std::string input;       // = "debug.txt";
     std::string outFileName;
     int opt, option_index;
-    while ((opt = getopt_long(argc, argv, "b:i:", long_options, &option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "b:o:", long_options, &option_index)) != -1) {
         switch (opt) {
         case 'b':
             bnfFileName = optarg;
@@ -111,26 +127,27 @@ int main(int argc, char **argv) {
         scanner::parser parser(utils::open(bnfFileName));
         auto bnf = bnf::scan_bnf(parser);
         bnf::check_bnf(bnf);
-#ifdef PRINT_BNF
-        for (auto item : bnf) {
-            fmt::print("{} ::= ", item.first);
-            std::cout << item.second << ";" << std::endl;
+
+        if (print_bnf) {
+            for (auto item : bnf) {
+                fmt::print("{} ::= ", item.first);
+                std::cout << item.second << ";" << std::endl;
+            }
+            return 0;
         }
-#endif
+
         auto tree = bnf::scan_by_bnf(utils::open(input), bnf);
 
-        std::stringstream ss;
-        switch (format) {
-        case format_t::XML:
-            bnf::xml::print(ss, tree);
-            break;
-        case format_t::JSON:
-            bnf::json::print(ss, tree);
-            break;
-        default:
-            break;
+        if (outFileName.empty()) {
+            print(std::cout, tree);
+            std::cout << std::endl;
+        } else {
+            std::ofstream file(outFileName);
+            if(file.bad())
+                throw std::runtime_error(fmt::format("[print] error create file '{}'", outFileName));
+            print(file, tree);
+            file << std::endl;
         }
-        std::cout << ss.str() << std::endl;
     } catch (const std::exception &e) {
         fprintf(stderr, "%s\n", e.what());
         return 1;
