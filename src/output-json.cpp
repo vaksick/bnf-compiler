@@ -1,6 +1,6 @@
-/// Copyright (c) 2020 Viktor Lazarev 
+/// Copyright (c) 2020 Viktor Lazarev
 //! @version 0.1
-//! @author vaksick@gmail.com 
+//! @author vaksick@gmail.com
 
 #include "output-json.hpp"
 #include "rapidjson/document.h"
@@ -9,6 +9,7 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 #include <iostream>
+extern int pretty_out;
 
 namespace bnf::json {
 
@@ -59,6 +60,16 @@ namespace bnf::json {
             to_json(writer, tree);
         }
         writer.EndObject();
-        os << buffer.GetString() << std::endl;
+
+        if (pretty_out) {
+            StringBuffer sb;
+            PrettyWriter<StringBuffer> writer(sb);
+            Reader reader;
+            StringStream ss(buffer.GetString());
+            reader.Parse(ss, writer);
+            os << sb.GetString();
+        } else {
+            os << buffer.GetString();
+        }
     }
 } // namespace bnf::json
