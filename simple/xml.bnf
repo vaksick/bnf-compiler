@@ -1,0 +1,31 @@
+<entry>     ::= <document>;
+<document>  ::= <prolog>? <misc>* <element> <misc>*;
+
+<s:char data>  ::= [^'<','&']*;
+<s:value char> ::= [^'<',"\\","'",'"'];
+<letter>       ::= ['a'..'z', 'A'..'Z'];
+<digit>        ::= ['0'..'9'];
+<name char>    ::= <letter> | <digit> | '.' | '-' | '_' | ':';
+<s:name>       ::= (<letter> | '_' | ':') <name char>*;
+//whitespace
+<h:ws>  ::=  (" " | "\t" | "\r" | "\n")+;
+<h:eq>  ::= <ws>? "=" <ws>?;
+<h:angle left>   ::= "<" <ws>?;
+<h:angle left2>  ::= "</" <ws>?;
+<h:angle right>  ::= <ws>? ">";
+<h:angle right2> ::= <ws>? "/>";
+
+<prolog>    ::= <xml decl>? <ws>?;
+<xml decl>  ::= '<?xml' (<ws> <attribute>)* <h:ws> '?>';
+<misc> ::= <comment> | <ws>;
+<s:comment>   ::= '<!--' ('-'[^'-'] | '--'[^'>'] | [^'-'])* '-->';
+
+<element>    ::= <empty elem tag> | <start tag> <content> <end tag>;
+<s:value> ::= '"' ('\\\\'|'\\"'|"'"|<value char>)* '"' |  "'" ('\\\\'|"\\'"|'"'|<value char>)* "'";
+<attribute> ::= <name> <eq> <value>;
+<start tag> ::= <angle left> <name> (<ws> <attribute>)* <angle right>;
+
+<end tag>       ::= <angle left2> <name> <angle right>;
+<empty elem tag> ::= <angle left> <name> (<ws> <attribute>)* <angle right2>;
+
+<content>       ::= ( <element> | <char data> | <comment>)*;
