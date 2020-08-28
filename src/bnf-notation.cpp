@@ -20,8 +20,8 @@ namespace bnf {
         return std::get<rules>(value);
     }
 
-    rule_ptr rule::create_str(const std::string &value) {
-        return std::make_shared<rule>(STR, value, prefix_t::NONE);
+    rule_ptr rule::create_str(const std::string &value, prefix_t pfx) {
+        return std::make_shared<rule>(STR, value, pfx);
     }
     rule_ptr rule::create_rule(const std::string &value, prefix_t pfx) {
         return std::make_shared<rule>(RULE, value, pfx);

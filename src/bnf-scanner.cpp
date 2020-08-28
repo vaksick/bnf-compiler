@@ -56,7 +56,8 @@ namespace bnf {
                     rule = scane_expression(ctx);
                     ctx.consume(tag::PARENT_RIGHT);
                 } else {
-                    rule = rule::create_str(ctx.str_consume());
+                    auto prefix = ctx.array_consume({tag::PREFIX_HIDDEN}, {prefix_t::HIDDEN}, prefix_t::NONE);
+                    rule = rule::create_str(ctx.str_consume(), prefix);
                 }
                 if (ctx.try_to_consume(tag::PLUS)) {
                     rule->variable = variable_t::ONE_OR_MORE;

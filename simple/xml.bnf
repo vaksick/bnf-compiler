@@ -16,9 +16,9 @@
 <h:angle right2> ::= <ws>? "/>";
 
 <prolog>    ::= <xml decl>? <ws>?;
-<xml decl>  ::= '<?xml' (<ws> <attribute>)* <h:ws> '?>';
+<xml decl>  ::= h:'<?xml' (<ws> <attribute>)* <ws>? h:'?>';
 <misc> ::= <comment> | <ws>;
-<s:comment>   ::= '<!--' ('-'[^'-'] | '--'[^'>'] | [^'-'])* '-->';
+<s:comment>   ::= h:'<!--' ('-'[^'-'] | '--'[^'>'] | [^'-'])* h:'-->';
 
 <element>    ::= <empty elem tag> | <start tag> <content> <end tag>;
 <s:value> ::= '"' ('\\\\'|'\\"'|"'"|<value char>)* '"' |  "'" ('\\\\'|"\\'"|'"'|<value char>)* "'";
@@ -28,4 +28,4 @@
 <end tag>       ::= <angle left2> <name> <angle right>;
 <empty elem tag> ::= <angle left> <name> (<ws> <attribute>)* <angle right2>;
 
-<content>       ::= ( <element> | <char data> | <comment>)*;
+<content>       ::= ( <ws>+ | <element> | <char data> | <comment>)*;

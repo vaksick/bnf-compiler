@@ -32,7 +32,7 @@ namespace bnf {
 
         const std::string &str() const;
         const rules &list() const;
-        static rule_ptr create_str(const std::string &);
+        static rule_ptr create_str(const std::string &, prefix_t);
         static rule_ptr create_rule(const std::string &, prefix_t);
         static rule_ptr create_choice(const rules &);
         static rule_ptr create_array(const std::string &);

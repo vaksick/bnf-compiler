@@ -227,14 +227,16 @@ namespace bnf {
                 } else {
                     for (; first != last; ++first) {
                         auto value = expression(*first, depth);
+                        auto rule = *first;
                         if (is_null(value)) {
-                            auto rule = *first;
                             if (rule->allowed_empty())
                                 continue;
                             if (rule->type == rule_type::RULE && get_rule(map, rule->str())->allowed_empty())
                                 continue;
                             return nullptr;
                         }
+                        if (rule->type == rule_type::STR && rule->is_hidden())
+                            continue;
                         append(result, value);
                     };
                 }
