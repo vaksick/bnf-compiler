@@ -143,7 +143,7 @@ namespace bnf {
                 case STR:
                     for (auto chr : rule->str()) {
                         if (stream.getChar() != chr)
-                            throw bnf_error("[rule error] {}: expected string '{}'", pos, rule->str());
+                            throw bnf_error("[rule error] {}: expected string '{}'", pos.str(), rule->str());
                         stream.shift(1);
                     }
                     return rule->str();
@@ -175,7 +175,7 @@ namespace bnf {
                             return value;
                         }
                     }
-                    throw bnf_error("[rule error] {}: failed to make a choice in tag:'{}'", pos, name);
+                    throw bnf_error("[rule error] {}: failed to make a choice in tag:'{}'", pos.str(), name);
                 }
                 case ARRAY: {
                     // only char

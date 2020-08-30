@@ -1,6 +1,6 @@
-/// Copyright (c) 2020 Viktor Lazarev 
+/// Copyright (c) 2020 Viktor Lazarev
 //! @version 0.1
-//! @author vaksick@gmail.com 
+//! @author vaksick@gmail.com
 
 #pragma once
 #include <cstddef>
@@ -15,6 +15,9 @@ namespace common {
         }
         inline bool operator==(const location &rvalue) const {
             return (line == rvalue.line) && (column == rvalue.column);
+        }
+        inline std::string str() const {
+            return fmt::format("{}:{}", line, column);
         }
     };
 
@@ -65,11 +68,3 @@ namespace common {
 
     using input_ptr = std::shared_ptr<input<char>>;
 } // namespace common
-
-template <>
-struct fmt::formatter<common::location> : formatter<fmt::string_view> {
-    template <typename FormatContext>
-    auto format(const common::location &loc, FormatContext &ctx) {
-        return format_to(ctx.out(), "{}:{}", loc.line, loc.column);
-    }
-};

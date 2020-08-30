@@ -70,7 +70,7 @@ namespace scanner {
     }
 
     void parser::raiseEx(const location &loc, const std::string &message) {
-        throw parser_error("[lexer error] {}: {}", loc, message);
+        throw parser_error("[lexer error] {}: {}", loc.str(), message);
     }
 
     void parser::raise(const std::string &message) {
