@@ -29,6 +29,17 @@ namespace scanner {
         }
         return buffer;
     }
+
+    inline char __hex(char c) {
+        if (c >= '0' && c <= '9')
+            return c - 0x30;
+        return (toupper(c) - 0x37) & 0xf;
+    }
+
+    inline char from_hex(char b1, char b2) {
+        return (__hex(b1) << 4) | __hex(b2);
+    }
+
     std::string lexer::read_quated_string() {
         std::string buffer;
         buffer.reserve(255); // reserve
@@ -52,6 +63,10 @@ namespace scanner {
                         break;
                     case 'f':
                         buffer.push_back('\f');
+                        break;
+                    case 'x':
+                        input->shift(2);
+                        buffer.push_back(from_hex(input->getChar(), input->getNextChar()));
                         break;
                     case '\\':
                         buffer.push_back('\\');
