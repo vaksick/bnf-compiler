@@ -184,6 +184,11 @@ int main(int argc, char **argv) {
             return 0;
         }
 
+        if (input.empty()) {
+            fprintf(stderr, "input file not specified\n");
+            help_print();
+        }
+
         auto tree = bnf::scan_by_bnf(utils::open(input), bnf);
 
         if (outFileName.empty()) {

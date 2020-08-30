@@ -5,12 +5,13 @@
 #include "input-file.hpp"
 #include <fstream>
 #include <streambuf>
+#include <fmt/format.h>
 
 namespace utils {
     common::input_ptr open(const std::string &name) {
         auto file = fopen(name.c_str(), "rb");
         if (!file)
-            return nullptr;
+            throw std::runtime_error(fmt::format("[open] don't open file '{}'", name));
         fseek(file, 0, SEEK_END);
         auto size = ftell(file);
         rewind(file);
@@ -19,7 +20,7 @@ namespace utils {
         memset(mem.get() + size, 0, 4);
         if (ferror(file)) {
             fclose(file);
-            return nullptr;
+            throw std::runtime_error(fmt::format("[open] don't read file '{}'", name));
         }
         fclose(file);
         return std::make_shared<common::input<char>>(mem);
