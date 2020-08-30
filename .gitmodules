@@ -1,6 +1,6 @@
-[submodule "rapidxml"]
-	path = rapidxml
-	url = https://github.com/timniederhausen/rapidxml.git
 [submodule "rapidjson"]
 	path = rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "rapidxml"]
+	path = rapidxml
+	url = https://github.com/timniederhausen/rapidxml.git
