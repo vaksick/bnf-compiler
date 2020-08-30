@@ -7,23 +7,25 @@
 #include "output-json.hpp"
 #include "parser-by-bnf.hpp"
 #include "parser.hpp"
+#include <fstream>
 #include <getopt.h>
 #include <iostream>
 #include <output-xml.hpp>
 #include <sstream>
-#include <fstream>
 
 enum format_t : int { XML, JSON };
 
 format_t format = format_t::XML;
 int pretty_out = false;
 int print_bnf = false;
+int collapse_array = true;
 
 static struct option long_options[] = { //
     {"format-out-xml", no_argument, (int *)&format, format_t::XML},
     {"format-out-json", no_argument, (int *)&format, format_t::JSON},
     {"pretty", no_argument, &pretty_out, true},
     {"print-bnf", no_argument, &print_bnf, true},
+    {"print-no-collapse", no_argument, &collapse_array, false},
     {"bnf", required_argument, nullptr, 'b'},
     {"output", required_argument, nullptr, 'o'},
     {"help", required_argument, nullptr, 'h'},
@@ -34,10 +36,21 @@ void help_print() {
     fprintf(stderr, "options\n");
     fprintf(stderr, "    --output/-o          :Output the results to a file. Default output to tty.\n");
     fprintf(stderr, "    --print-bnf          :Print parsing bnf to tty.\n");
+    fprintf(stderr, "    --print-no-collapse  :Don't collapse arrays on bnf output.\n");
     fprintf(stderr, "    --pretty             :Output the result in a pretty format.\n");
     fprintf(stderr, "    --format-out-xml     :Output the result in a xml format.[default]\n");
     fprintf(stderr, "    --format-out-json    :Output the result in a json format.\n");
     exit(0);
+}
+
+std::string to_string(char chr) {
+    if (chr == '\r')
+        return "\\r";
+    if (chr == '\n')
+        return "\\n";
+    if (chr < 0x20)
+        return fmt::format("\\x{:x}", chr);
+    return fmt::format("'{}'", chr);
 }
 
 std::ostream &operator<<(std::ostream &os, bnf::rule_ptr rule) {
@@ -67,6 +80,34 @@ std::ostream &operator<<(std::ostream &os, bnf::rule_ptr rule) {
             }
             os << ")";
             break;
+        case bnf::XOR_ARRAY:
+        case bnf::ARRAY: {
+            os << "[";
+            if (rule->type == bnf::XOR_ARRAY)
+                os << "^";
+            char ragne_char = 0;
+            int ragne_idx = 0;
+            for (auto chr : rule->str()) {
+                if (!is_first && collapse_array) {
+                    if (ragne_char + 1 == chr) {
+                        ragne_char++;
+                        ragne_idx++;
+                        continue;
+                    }
+                    if (ragne_idx > 0) {
+                        os << ".." << to_string(ragne_char);
+                        ragne_idx = 0;
+                    }
+                }
+                if (!is_first)
+                    os << ", ";
+                ragne_char = chr;
+                os << to_string(chr);
+                is_first = false;
+            }
+            os << "]";
+            break;
+        }
         default:
             throw std::runtime_error("unknown rule type");
         }
@@ -150,7 +191,7 @@ int main(int argc, char **argv) {
             std::cout << std::endl;
         } else {
             std::ofstream file(outFileName);
-            if(file.bad())
+            if (file.bad())
                 throw std::runtime_error(fmt::format("[print] error create file '{}'", outFileName));
             print(file, tree);
             file << std::endl;
