@@ -19,7 +19,7 @@ jobs:
 
     - name: Checkout submodules
       shell: bash
-      run: git submodule sync --recursive
+      run: git submodule init
     
     - name: Install dependencies
       run: sudo apt-get install libfmt-dev
