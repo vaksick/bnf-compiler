@@ -7,23 +7,23 @@
 
 namespace bnf {
 
-    inline bool is_null(const data_t &value) {
+    bool is_null(const data_t &value) {
         if (is_tree(value))
             return get_tree(value) == nullptr;
         if (is_string(value))
             return get_string(value).empty();
         return false;
     }
-    inline bool is_string(const data_t &value) {
+    bool is_string(const data_t &value) {
         return std::holds_alternative<std::string>(value);
     }
-    inline bool is_tree(const data_t &value) {
+    bool is_tree(const data_t &value) {
         return std::holds_alternative<tree_ptr>(value);
     }
-    inline const std::string &get_string(const data_t &value) {
+    const std::string &get_string(const data_t &value) {
         return std::get<std::string>(value);
     }
-    inline const tree_ptr &get_tree(const data_t &value) {
+    const tree_ptr &get_tree(const data_t &value) {
         return std::get<tree_ptr>(value);
     }
     bool is_null(const variant_t &value) {
