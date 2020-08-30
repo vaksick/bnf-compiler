@@ -3,6 +3,7 @@
 //! @author vaksick@gmail.com
 
 #include "bnf-scanner.hpp"
+#include <set>
 
 namespace bnf {
     using namespace scanner;
@@ -37,7 +38,7 @@ namespace bnf {
                     auto name = scan_tag_and_consume_angle(ctx);
                     rule = rule::create_rule(name, prefix);
                 } else if (ctx.try_to_consume(tag::BRACKET_LEFT)) {
-                    std::string range;
+                    std::set<char> range;
                     bool is_not = ctx.try_to_consume(tag::NOT);
                     do {
                         auto chr = scan_char(ctx);
@@ -46,12 +47,13 @@ namespace bnf {
                             if (chr > last)
                                 std::swap(chr, last);
                             for (; chr <= last; chr++)
-                                range.push_back(chr);
+                                range.insert(chr);
                         } else
-                            range.push_back(chr);
+                            range.insert(chr);
                     } while (ctx.try_to_consume(tag::COMMA));
                     ctx.consume(tag::BRACKET_RIGHT);
-                    rule = is_not ? rule::create_xor_array(range) : rule::create_array(range);
+                    std::string value(range.begin(), range.end());
+                    rule = is_not ? rule::create_xor_array(value) : rule::create_array(value);
                 } else if (ctx.try_to_consume(tag::PARENT_LEFT)) {
                     rule = scane_expression(ctx);
                     ctx.consume(tag::PARENT_RIGHT);
