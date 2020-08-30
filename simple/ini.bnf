@@ -1,0 +1,15 @@
+<entry>     ::=  (<skip> | <comment> <brk>)* <section>*;
+
+<h:ws>      ::= (' ' | '\t')+;
+<h:brk>     ::= ('\r'? '\n')+;
+<h:eq>      ::= <ws>? "=" <ws>?;
+<h:skip>    ::= (<ws> | <brk>)*;
+<h:comment> ::= [';','#'] ([^'\r','\n'])+;
+
+
+<section>   ::= h:"[" <ws>? <name> <ws>? h:"]" (<brk> ( <statement> | <comment> | <error> ))* <skip>;
+<statement> ::= <s:name> <eq> <value>;
+<s:name>    ::= <name char> ( <ws>? <name char> )*;
+<s:value>   ::= ([^'\r','\n'])*;
+<s:error>   ::= ([^'[', '\r', '\n'])+;
+<name char> ::= [^'\x00'..'\x20', '[', ']', '=', ';', '#'];
